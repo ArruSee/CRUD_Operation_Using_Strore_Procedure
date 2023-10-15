@@ -1,0 +1,126 @@
+﻿
+@{
+    ViewBag.Title = "EmployeeForm";
+}
+
+<h2>EmployeeForm</h2>
+
+<table>
+    <tr>
+        <td>Name :</td>
+        <td><input type="text" id="txtname" /></td>
+    </tr>
+    <tr>
+        <td>Address :</td>
+        <td><input type="text" id="txtaddress" /></td>
+    </tr>
+    <tr>
+        <td>Age :</td>
+        <td><input type="text" id="txtage" /></td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td><input type="button" value="Submit" id="btnsave" onclick="SAVE()" /></td>
+    </tr>
+</table>
+
+<table id="tbl" style="background-color:aquamarine;width:790px" border="1">
+    <tr style="background-color:darkslategray;height:30px;color:white">
+        <td>Employee_Id</td>
+        <td>Employee_Name</td>
+        <td>Employee_Address</td>
+        <td>Employee_Age</td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+    IDD = 0;
+    $(document).ready(function () {
+
+        SHOW();
+    });   
+    
+    function SHOW() {
+        $.ajax({
+            url: 'Employee/Employee_Show',
+            type: 'post',
+            data: {},
+            success: function (pp) {
+                pp = JSON.parse(pp);
+                $("#tbl").find("tr:gt(0)").remove();
+                for (var i = 0; i < pp.length; i++) {
+                    $("#tbl").append('<tr><td>' + pp[i].empid + '</td><td>' + pp[i].name + '</td><td>' + pp[i].address + '</td><td>' + pp[i].age + '</td><td><input type="button" value="Delete" id="btndelete" onclick="DELETE(' + pp[i].empid + ')" /></td><td><input type="button" value="Edit" id="btnedit" onclick="EDIT(' + pp[i].empid + ')" /></td></tr>');
+                }
+            },
+            error: function () {
+                alert('data not found');
+            }
+
+
+        });
+    }
+
+    function DELETE(empid) {
+        $.ajax({
+            url: 'Employee/Employee_Delete',
+            type: 'post',
+            data: { EmpID: empid },
+            success: function () {
+                SHOW();
+            },
+            error: function () {
+                alert('data has not been deleted');
+            }
+        });
+    }
+
+    function Clear() {
+        $("#txtname").val("");
+        $("#txtaddress").val("");
+        $("#txtage").val("");
+        $("#btnsave").val("Submit");
+        IDD = 0;
+
+    }
+
+    function EDIT(empid) {
+        $.ajax({
+            url: 'Employee/Employee_Edit',
+            type: 'post',
+            data: { EmpID: empid },
+            success: function (pp) {
+                pp = JSON.parse(pp);
+                $("#txtname").val(pp[0].name);
+                $("#txtaddress").val(pp[0].address);
+                $("#txtage").val(pp[0].age);
+                $("#btnsave").val("Update");
+                IDD = empid;
+            },
+            error: function () {
+                alert('data has not been edited');
+            }
+        });
+    }
+
+
+    function SAVE() {
+        $.ajax({
+            url: 'Employee/Employee_Insert_Update',
+            type: 'post',
+            data: { EmpId:IDD,A: $("#txtname").val(), B: $("#txtaddress").val(), C: $("#txtage").val() },
+            success: function () {
+                SHOW();
+                Clear();
+            },
+            error: function () {
+                alert('data has not been saved');
+            }
+        });
+    }
+
+
+</script>
